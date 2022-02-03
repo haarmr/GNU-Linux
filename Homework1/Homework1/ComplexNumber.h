@@ -8,7 +8,8 @@ namespace Homework1
         ComplexNumber(int first, int second);
         int GetReal();
         int GetImaginary();
-        friend ComplexNumber operator+(ComplexNumber& a, const ComplexNumber& b);
+        friend ComplexNumber operator - (ComplexNumber a, const ComplexNumber& b);
+        friend ComplexNumber operator + (ComplexNumber a, const ComplexNumber& b);
     };
 
 }

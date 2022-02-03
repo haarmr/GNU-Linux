@@ -8,19 +8,27 @@ ComplexNumber::ComplexNumber(int first, int second)
     imaginary = second;
 }
 
-ComplexNumber Homework1::operator+(ComplexNumber& a, const ComplexNumber& b)
-{
-    ComplexNumber c(a.real + b.real, a.imaginary + b.imaginary);
 
-    return c;
-}
-
-int Homework1::ComplexNumber::GetReal()
+int ComplexNumber::GetReal()
 {
     return real;
 }
 
-int Homework1::ComplexNumber::GetImaginary()
+int ComplexNumber::GetImaginary()
 {
     return imaginary;
+}
+
+ComplexNumber Homework1::operator-(ComplexNumber a, const ComplexNumber& b)
+{
+    ComplexNumber c(a.real - b.real, a.imaginary - b.imaginary);
+
+    return c;
+}
+
+ComplexNumber Homework1::operator + (ComplexNumber a, const ComplexNumber& b)
+{
+    ComplexNumber c(a.real + b.real, a.imaginary + b.imaginary);
+
+    return c;
 }
