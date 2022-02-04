@@ -1,7 +1,6 @@
 #include "ComplexNumber.h"
 #include <cmath>
 
-using namespace Homework1;
 
 // init values on construct
 ComplexNumber::ComplexNumber(int first, int second)
@@ -23,7 +22,7 @@ int ComplexNumber::GetImaginary()
 }
 
 // overload substract(-) operator for complex
-ComplexNumber Homework1::operator-(ComplexNumber a, const ComplexNumber& b)
+ComplexNumber operator-(ComplexNumber a, const ComplexNumber& b)
 {
     a.real -= b.real;
     a.imaginary -= b.imaginary;
@@ -32,7 +31,7 @@ ComplexNumber Homework1::operator-(ComplexNumber a, const ComplexNumber& b)
 }
 
 // overload add(+) operator for complex
-ComplexNumber Homework1::operator + (ComplexNumber a, const ComplexNumber& b)
+ComplexNumber operator + (ComplexNumber a, const ComplexNumber& b)
 {
     a.real += b.real;
     a.imaginary += b.imaginary;
@@ -41,7 +40,7 @@ ComplexNumber Homework1::operator + (ComplexNumber a, const ComplexNumber& b)
 }
 
 // overload miltiply(*) operator for complex
-ComplexNumber Homework1::operator * (ComplexNumber a, const ComplexNumber& b)
+ComplexNumber operator * (ComplexNumber a, const ComplexNumber& b)
 {
     a.real *= b.real;
     a.imaginary *= b.imaginary;
@@ -50,7 +49,7 @@ ComplexNumber Homework1::operator * (ComplexNumber a, const ComplexNumber& b)
 }
 
 // overload absolute value calculation method for complex
-int Homework1::abs(ComplexNumber a)
+int abs(ComplexNumber a)
 {
     int absoluteValue = sqrt(pow(a.real,2) + pow(a.imaginary, 2));
 

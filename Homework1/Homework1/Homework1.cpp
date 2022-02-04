@@ -1,8 +1,6 @@
 #include <iostream>
 #include "ComplexNumber.h"
 
-using namespace Homework1;
-
 int main()
 {
     // define complex numbers
