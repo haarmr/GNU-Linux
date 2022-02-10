@@ -5,6 +5,11 @@ int main()
 {
     ParallelMatrix *x = new ParallelMatrix();
 
-    x->sum();
+    int sum = x->sum();
+    
+    std::cout << "Sum is: " << sum << std::endl;
+
+    int sumx = x->sum_parallel(20);
+
     return 0;
 }
