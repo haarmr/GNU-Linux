@@ -4,10 +4,13 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <cmath>
+#include <string.h>
 
 
-ParallelMatrix::ParallelMatrix()
+ParallelMatrix::ParallelMatrix(int height, int weight)
 {
+    this->height = height;
+    this->weight = weight;
     int mutex = pthread_mutex_init(&this->mutex, NULL);
 
     if (mutex != 0) {
@@ -15,12 +18,17 @@ ParallelMatrix::ParallelMatrix()
         exit(0);
     }
 
-    for (int i=0;i<1000;i++) {
-        for(int j=0;j<1000;j++) {
+    this->matrix = new int*[this->height];
+
+    for (int i=0;i<this->height;i++) {
+        this->matrix[i] =  new int[this->weight];
+
+        for(int j=0;j<this->weight;j++) {
             this->matrix[i][j] = rand() % 100;
         }
     }
 }
+
 
 int ParallelMatrix::get_random_number()
 {
@@ -34,8 +42,8 @@ int ParallelMatrix::get_random_number()
 int ParallelMatrix::sum()
 {
     int sum=0;
-    for (int i=0;i<1000;i++) {
-        for(int j=0;j<1000;j++) {
+    for (int i=0;i<this->height;i++) {
+        for(int j=0;j<weight;j++) {
             //std::cout<< this->matrix[i][j] << " ";
             sum += this->matrix[i][j];
         }
@@ -49,42 +57,36 @@ int ParallelMatrix::sum_parallel(int threadsCount)
 {
     //this->sum_parallel = 0;
     pthread_t* threads = new pthread_t[threadsCount];
-    int size = sizeof(this->matrix)/sizeof(this->matrix[0]);
+    int size = this->height;
     int eachThreadStrength = ceil( (float)size/threadsCount);
-
 
     std::cout << "matrix size is :" << size << std::endl;
     std::cout << "thread count :" << threadsCount << std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
+    std::cout<<std::endl;
 
-    std::cout << "eachThreadStrength :" << eachThreadStrength << std::endl;
+    //std::cout << "eachThreadStrength :" << eachThreadStrength << std::endl;
 
-    return 1;
-    for(int i=0;i <=threadsCount; i++) {
+    for(int i=0;i <threadsCount; i++) {
 
-        int startMatrixIndex = i*eachThreadStrength;
-        int submatrix[eachThreadStrength][1000];
+        //std::cout << "Thread " << i << " starting" <<std::endl;
 
+        int startMatrixIndex = i*eachThreadStrength;      
+        struct thread_args args;
         
-        for(int j=0;j<eachThreadStrength;j++) {
-
-            submatrix[j] = this->matrix[startMatrixIndex];
-            startMatrixIndex++;
+        args.i = startMatrixIndex;
+        args.strength = eachThreadStrength;
+        args.arr = this->matrix;
             
-            if (startMatrixIndex > size){
-                break;
-            }
-        }
-        
-        
-
-        int result = pthread_create(&threads[i], NULL, thread_start, this);
+        int result = pthread_create(&threads[i], NULL, thread_start, &args);
 
         if (result != 0) {
             exit(result);
         }
     }
 
-    for(int i=0;i <=threadsCount; i++) {
+    for(int i=0;i <threadsCount; i++) {
 
         void* retval;
         pthread_join(threads[i], &retval);
@@ -105,11 +107,21 @@ int ParallelMatrix::sum_parallel(int threadsCount)
 
 void* ParallelMatrix::thread_start(void* arg)
 {
-    ParallelMatrix *pThis = (ParallelMatrix*) arg;
+    //std::cout << "argpointer is " << *arg<<  std::endl;
+    struct thread_args* args = (struct thread_args*) arg;
 
+    std::cout << "startMatrixIndex: "<< &args->i << std::endl;
+    std::cout << "eachThreadStrength: "<< &args->strength << std::endl;
+    
+
+    for (int startIndex=args->i; startIndex < args->strength; startIndex+=19) {
+        
+    }
+
+    //std::cout << "startMatrixIndex: "<< args->i << std::endl;
     while (true) {
         
-        int size = sizeof(pThis->matrix)/sizeof(pThis->matrix[0]);
+        //int size = sizeof(pThis->matrix)/sizeof(pThis->matrix[0]);
 
 
         

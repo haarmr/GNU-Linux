@@ -6,13 +6,18 @@
 class ParallelMatrix 
 {
     private:
-        int matrix[1000][1000];
-        //int subMatrixIndex;
+        int height;
+        int weight;
+        int **matrix;
         int paralleCounterSum;
         pthread_mutex_t mutex;
-        //pthread_mutex_t mutexForSum;
+        struct thread_args{
+            int i;
+            int strength;
+            int **arr;
+        };
     public:
-        ParallelMatrix();
+        ParallelMatrix(int height, int weight);
         int sum();
         int sum_parallel(int threadCount);
         int get_random_number();
