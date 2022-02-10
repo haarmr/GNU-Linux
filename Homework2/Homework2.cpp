@@ -32,7 +32,7 @@ void print_file_size (int file)
         }
 
         // reached the end of file
-        if(data == 0){
+        if(data == 0 && offset !=0){
             break;
         }
 
@@ -115,10 +115,27 @@ int main(int argc, char *argv[])
         // there was some data if we got to next hole
         if(data > 0){
             std::cout << "Data Area Detected from " << offset << " to " <<  data << std::endl;
+
+            char buff[data-offset];
+
+            cout << "Read: " << data-offset << "  of data" <<endl;
+
+            // move the pointer to the offset to again start reading 
+            lseek(sourceFile, offset, SEEK_SET);
+
+            // read the data from the offset
+            int bytesRead = read(sourceFile, buff, data-offset); 
+
+            cout << "Write: " << bytesRead << "  of data" <<endl;
+
+            write(destFile, buff, bytesRead);
+
+            // change offset to end of data just read
+            offset = data;
         }
 
-        // reached the end of file
-        if(data == 0){
+        // reached the end of file, offset and data are both 0 when file starts with hole
+        if(data == 0 && offset != 0){
             break;
         }
 
@@ -128,28 +145,14 @@ int main(int argc, char *argv[])
             exit(errno);
         }
 
-        char buff[data-offset];
-
-        cout << "Read: " << data-offset << "  of data" <<endl;
-
-        // move the pointer to the offset to again start reading 
-        lseek(sourceFile, offset, SEEK_SET);
-
-        // read the data from the offset
-        int bytesRead = read(sourceFile, buff, data-offset); 
-
-        cout << "Write: " << bytesRead << "  of data" <<endl;
-
-        write(destFile, buff, bytesRead);
-
-        // change offset to end of data just read
-        offset = data;
+        
         
         // try find next data jumping over a hole
         off_t hole = lseek(sourceFile, offset, SEEK_DATA);
 
         // reached the end no data to read
         if(hole == -1 && errno == ENXIO){
+            std::cout<< "reached the end no data to read" << std::endl;
             break;
         }
 
