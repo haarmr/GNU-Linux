@@ -14,7 +14,9 @@ class ParallelMatrix
         struct thread_args{
             int i;
             int strength;
+            int weight;
             int **arr;
+            void* myClass;
         };
     public:
         ParallelMatrix(int height, int weight);
@@ -23,7 +25,7 @@ class ParallelMatrix
         int get_random_number();
         static void* thread_start(void* arg);
         //void increment_matrix_index();
-        //void increment_parallel_sum(int count);
+        void increment_parallel_sum(int count);
 };
 
 #endif
