@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	IPCService *ipcService = new IPCService(arraySize, workers);
 	ipcService->calculate_sum();
 
+	std::cout << "Synchron sum is: " << ipcService->sum_synchron() << std::endl;
 	return 1;
     int pipefd[2];
 

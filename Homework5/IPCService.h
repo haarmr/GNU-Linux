@@ -11,6 +11,7 @@ class IPCService
     public:
         IPCService(int arraySize, int workers);
         void calculate_sum();
+        int sum_synchron();
 
 };
 
