@@ -14,8 +14,8 @@ class ParallelMatrix
         struct thread_args{
             int i;
             int strength;
-            int weight;
-            int **arr;
+            //int weight;
+            //int **arr;
             void* myClass;
         };
     public:

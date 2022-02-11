@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ParallelMatrix.h"
 #include <cstdlib>
+#include <chrono>
 
 int main(int argc, char** argv) 
 {
@@ -14,13 +15,20 @@ int main(int argc, char** argv)
 
     ParallelMatrix *x = new ParallelMatrix(matrixHeight, matrixWeight);
 
+    auto startedSumSychron = std::chrono::high_resolution_clock::now();
     int sum = x->sum();
-    
+    auto doneSumSychron = std::chrono::high_resolution_clock::now();
 
+
+    auto startedSumAsSychron = std::chrono::high_resolution_clock::now();
     int sumx = x->sum_parallel(atoi(argv[3]));
+    auto doneSumASychron = std::chrono::high_resolution_clock::now();
     
-    std::cout << "Sum is: " << sum << std::endl;
-    std::cout<< "SumParallel is: " << sumx << std::endl;
+    std::cout << "Sum is: " << sum << ", Time spent: ";
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(doneSumSychron-startedSumSychron).count() << std::endl;
+
+    std::cout<< "SumParallel is: " << sumx << ", Time spent: ";
+    std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(doneSumASychron-startedSumAsSychron).count() << std::endl;
 
     return 0;
 }
