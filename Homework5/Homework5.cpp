@@ -18,9 +18,11 @@ int main(int argc, char** argv)
     int workers = atoi(argv[2]);
 
 	IPCService *ipcService = new IPCService(arraySize, workers);
-	ipcService->calculate_sum();
+	int parallelSum = ipcService->calculate_sum();
 
 	std::cout << "Synchron sum is: " << ipcService->sum_synchron() << std::endl;
+	std::cout << "Parallel sum is: " << parallelSum << std::endl;
+	
 	return 1;
     int pipefd[2];
 

@@ -15,10 +15,6 @@ IPCService::IPCService(int arraySize, int workers)
     for (int i=0;i<this->arraySize;i++){
         myArray[i] = rand() % 1000;
     }
-
-    /*for (int i=0;i<this->arraySize;i++){
-        std::cout<< myArray[i];
-    }*/
 }
 
 int IPCService::sum_synchron()
@@ -31,10 +27,13 @@ int IPCService::sum_synchron()
     return sum;
 }
 
-void IPCService::calculate_sum()
+int IPCService::calculate_sum()
 {
     int eachWorkerStrength = ceil((float) this->arraySize/this->workers);
+    int *subTotalOfWorkes = new int[this->workers];
     bool isEnd = false;
+    int calculatedTotal = 0;
+
     //std::cout<<eachWorkerStrength;
     //return;
     for (int i=0; i < this->workers; i++) {
@@ -70,15 +69,22 @@ void IPCService::calculate_sum()
 
             //std::cout << getpid() <<"- I will take from: " << data[0] << " to: " << data[1] << std::endl;
 
-            int* ankapSum = new int();
+            int* childCountedSum = new int();
             for (int j=data[0]; j<data[1]; j++) {
-                *ankapSum += this->myArray[j];
+                *childCountedSum += this->myArray[j];
+                //std::cout << "J is: " << j << "  ";
+                //std::cout << this->myArray[j] << std::endl;
             }
 
-            std::cout<< "one of child sum is: " << *ankapSum << "  pointer ::" << ankapSum << std::endl;
+            //std::cout<< "One of workers calculated sum: " << *childCountedSum << std::endl;
 
             
-            write(childToParent[0], ankapSum, sizeof(ankapSum));
+            int written = write(childToParent[1], childCountedSum, sizeof(childCountedSum));
+
+            if (written == -1) {
+                std::cout<< strerror(errno);
+                exit(0);
+            }
             //sleep(2);
 
             // exit to prevent chil to enter out loop and start another childs
@@ -99,9 +105,11 @@ void IPCService::calculate_sum()
             }
 
             int* data = new int[2];
-            int* childCountedSum = new int;
             data[0] = workerStartIndex;
             data[1] = workerEndIndex;
+            
+            //std::cout <<"child will take: " << data[0] << " to: " << data[1] << std::endl;
+
             
             int written = write(parentToChild[1], data, sizeof(data));
 
@@ -110,10 +118,13 @@ void IPCService::calculate_sum()
                 exit(0);
             }
 
-
+            int* childCountedSum = new int;
             int readBytes = read(childToParent[0], childCountedSum, sizeof(childCountedSum));
 
-            std::cout << "Parent got child counted sum: " << childCountedSum << std::endl;
+            //std::cout << "Parent got child counted sum: " << *childCountedSum << std::endl;
+
+            subTotalOfWorkes[i] = *childCountedSum;
+
             //wait(NULL);
 
             /*const char* buffer = "asd";
@@ -130,4 +141,11 @@ void IPCService::calculate_sum()
     }
 
     while(wait(NULL) > 0);
+
+    for (int i=0;i< this->workers; i++) {
+        //std::cout << subTotalOfWorkes[i] << std::endl;
+        calculatedTotal += subTotalOfWorkes[i];
+    }
+
+    return calculatedTotal;
 }
