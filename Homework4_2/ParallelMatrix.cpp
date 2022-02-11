@@ -37,7 +37,7 @@ int ParallelMatrix::sum()
             //std::cout<< this->matrix[i][j] << " ";
             sum += this->matrix[i][j];
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 
     return sum;
@@ -107,7 +107,7 @@ int ParallelMatrix::sum_parallel(int threadsCount)
     for(int i=0;i <threadsCount; i++) {
 
         void* retval;
-        //pthread_join(threads[i], &retval);
+        pthread_join(threads[i], &retval);
     }
 
     return this->paralleCounterSum;
