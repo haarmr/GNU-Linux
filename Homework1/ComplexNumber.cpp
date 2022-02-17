@@ -51,10 +51,11 @@ ComplexNumber operator + (ComplexNumber a, const ComplexNumber& b)
 /**
  * Overload miltiply(*) operator for complex
  */
-ComplexNumber operator * (ComplexNumber a, const ComplexNumber& b)
+ComplexNumber operator * (ComplexNumber a, const int b)
 {
-    a.real *= b.real;
-    a.imaginary *= b.imaginary;
+    //(x + yi) u = xu + yu i
+    a.real = a.real * b;
+    a.imaginary = a.imaginary * b;
 
     return a;
 }

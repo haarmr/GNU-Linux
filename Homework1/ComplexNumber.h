@@ -13,7 +13,7 @@ public:
     int get_absolute();
     friend ComplexNumber operator - (ComplexNumber first, const ComplexNumber& second);
     friend ComplexNumber operator + (ComplexNumber first, const ComplexNumber& second);
-    friend ComplexNumber operator * (ComplexNumber first, const ComplexNumber& second);
+    friend ComplexNumber operator * (ComplexNumber first, const int second);
 };
 
 #endif

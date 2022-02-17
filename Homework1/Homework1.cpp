@@ -9,7 +9,7 @@ int main()
     ComplexNumber x(5, 10), y(5, 5), u(50, 70), f(44, 99);
 
     // count 
-    ComplexNumber z = x * y - u;
+    ComplexNumber z = x * 5 - u;
 
     // print absolute value of complex number
     cout << "Absolute value: " << z.get_absolute() << "\n";
