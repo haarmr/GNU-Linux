@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/types.h>
 
 /*
  * Ininitialize out class and create threads of count
@@ -116,6 +117,7 @@ void* ParallelScheduler::thread_start(void* args)
 		// unlocking mutex after execution
 		pthread_mutex_unlock(pThis->get_mutex());
 
+		std::cout << "Running thread: " << gettid() << " - ";
 		// executing function with arg
 		mytask.func(mytask.arg);
     }
