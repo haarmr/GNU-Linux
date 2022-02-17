@@ -58,6 +58,9 @@ int IPCService::calculate_sum()
 
     int calculatedTotal = 0;
 
+    // child to parent pipes array
+    int **childToParentPipes = new int*[this->workers];
+
     // create workers
     for (int i=0; i < this->workers; i++) {
 
@@ -65,12 +68,14 @@ int IPCService::calculate_sum()
         int parentToChild[2];
 
         // child only write to parent
-        int childToParent[2];
+        int* childToParent = new int[2];
     
         // create pipes for comunicating between parent and child proccesses
-        int result = pipe(parentToChild);
-        int result2 = pipe(childToParent);
+        pipe(parentToChild);
+        pipe(childToParent);
 
+        childToParentPipes[i] = childToParent;
+        
         // create child
         int child = fork();
 
@@ -148,20 +153,30 @@ int IPCService::calculate_sum()
                 exit(0);
             }
 
-            // create buffer to write the bytes read
-            int* childCountedSum = new int;
-
-            // read from pipe
-            int readBytes = read(childToParent[0], childCountedSum, sizeof(childCountedSum));
-
-            // add worker counted sum to array
-            subTotalOfWorkes[i] = *childCountedSum;
+            
 
             // no more workers needed
             if (isEnd)
                 break;
         }
+    }
 
+
+    // read from each worker pipe   
+    for (int i=0; i < this->workers; i++) {
+
+        int *childToParent = new int[2];
+
+        childToParent = childToParentPipes[i];
+
+        // create buffer to write the bytes read
+        int* childCountedSum = new int;
+
+        // read from pipe
+        int readBytes = read(childToParent[0], childCountedSum, sizeof(childCountedSum));
+
+        // add worker counted sum to array
+        subTotalOfWorkes[i] = *childCountedSum;
     }
 
     // wait for all workers to finish
