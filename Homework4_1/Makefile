@@ -1,5 +1,5 @@
 CXX = g++
-CFLAGS = -pthread  -lpthread
+CFLAGS = -g -Wall -pthread -lpthread
 files = "scheduler ParallelScheduler.o Homework4.o"
 
 all: Homework4

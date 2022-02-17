@@ -6,29 +6,43 @@
 #include <cmath>
 #include <string.h>
 
-
+/*
+ * Create matrix with given size and fill random data
+ */
 ParallelMatrix::ParallelMatrix(int height, int weight)
 {
+    // get args
     this->height = height;
     this->weight = weight;
+
+    // create mutex
     int mutex = pthread_mutex_init(&this->mutex, NULL);
 
+    // make sure mutex created
     if (mutex != 0) {
         std::cout << "Error initalizin mutex" << std::endl;
         exit(0);
     }
 
+    // for first create array of size
     this->matrix = new int*[this->height];
 
+    // then for each value of array create new array and thus get the matrix
     for (int i=0;i<this->height;i++) {
+
+        // create new array in array at position
         this->matrix[i] =  new int[this->weight];
 
+        // fill random data
         for(int j=0;j<this->weight;j++) {
             this->matrix[i][j] = rand() % 1000;
         }
     }
 }
 
+/*
+ * Calculate sum of matrix synchron
+ */
 int ParallelMatrix::sum()
 {
     int sum=0;
@@ -43,88 +57,93 @@ int ParallelMatrix::sum()
     return sum;
 }
 
+/*
+ * Calculate sum of matrix with threads
+ */
 int ParallelMatrix::sum_parallel(int threadsCount)
 {
-    //this->sum_parallel = 0;
+    // create threads store
     pthread_t* threads = new pthread_t[threadsCount];
+
+    // set initial data
     this->paralleCounterSum = 0;
     int size = this->height;
+
+    // get how many indexes each thread should carry
     int eachThreadStrength = ceil( (float)size/threadsCount);
 
-    /*std::cout << "matrix size is :" << size << std::endl;
-    std::cout << "thread count :" << threadsCount << std::endl;
-    
-
-    std::cout << "eachThreadStrength :" << eachThreadStrength << std::endl;
-
-    std::cout<<std::endl;
-    std::cout<<std::endl;
-    std::cout<<std::endl;*/
-
+    // make sure we didn`t reached end of the array
     bool theEnd = false;
 
+    // create threads
     for(int i=0;i <threadsCount; i++) {
 
-        //std::cout << "Thread " << i << " starting" <<std::endl;
-
+        // get starting index for calculation to pass to thread
         int startMatrixIndex = i*eachThreadStrength;   
 
-        //std::cout << "startMatrixIndex " << startMatrixIndex <<std::endl;
-        //std::cout << "startMatrixIndex+eachThreadStrength " << startMatrixIndex+eachThreadStrength <<std::endl;
-
-        // means reached the end
+        // make sure end not reached
         if ((startMatrixIndex+eachThreadStrength) > size) {
             
+            // if ending index gets out of array size then set the last index
             eachThreadStrength = size - startMatrixIndex;
+
+            // set the end reached
             theEnd = true;
         }
 
+        // make sure our strength for threads is positive
         if (eachThreadStrength <= 0) {
             break;
         }
 
+        // create args for thread
         thread_args* args = new (thread_args);
         
-        //std::cout << "start from " << startMatrixIndex << " and iterate till this index of array " << startMatrixIndex+eachThreadStrength <<std::endl;
-
-
+        // set data
         args->i = startMatrixIndex;
         args->strength = eachThreadStrength;
-        //args->weight = this->weight;
-        //args->arr = this->matrix;
         args->myClass = this;
             
+        // create thread and pass data
         int result = pthread_create(&threads[i], NULL, thread_start, args);
 
+        // make sure thread created
         if (result != 0) {
             exit(result);
         }
 
+        // after all break when array size reached end
         if (theEnd)
             break;
     }
 
+    // wait for all threads to finish
     for(int i=0;i <threadsCount; i++) {
 
         void* retval;
         pthread_join(threads[i], &retval);
     }
 
+    // return total sum
     return this->paralleCounterSum;
 }
 
+/*
+ * Main thread execution body
+ */
 void* ParallelMatrix::thread_start(void* arg)
 {
-    //std::cout << "argpointer is " << *arg<<  std::endl;
+    // get argument
     struct thread_args* args = (struct thread_args*) arg;
+
+    // get our instance from arguments
     ParallelMatrix* pThis = (ParallelMatrix*) args->myClass;
 
-    //std::cout << "startMatrixIndex: "<< args->i << std::endl;
-    //std::cout << "eachThreadStrength: "<< args->strength << std::endl;
-    
-
+    // iterate through array and count sum
     for (int startIndex=args->i; startIndex < (args->strength+args->i); startIndex++) {
         for(int j=0;j<pThis->weight;j++) {
+
+            // add to sum
             pThis->increment_parallel_sum(pThis->matrix[startIndex][j]);
         }
     }
@@ -132,12 +151,18 @@ void* ParallelMatrix::thread_start(void* arg)
     return NULL;
 }
 
+/*
+ * Method increments total parallel counted sum and carries synchronization 
+ */
 void ParallelMatrix::increment_parallel_sum(int count)
 {
+    // lock the mutex
     pthread_mutex_lock(&this->mutex);
 
+    // add value to sub total
     this->paralleCounterSum = this->paralleCounterSum + count;
 
+    // unlock mutex
     pthread_mutex_unlock(&this->mutex);
 
 }

@@ -9,61 +9,28 @@
 
 int main(int argc, char** argv) 
 {
+	// make sure all arguments passed
     if (argc < 3){
         std::cout<< "Insuficent arguments";
         exit(0);
     }   
 
+	// get arguments and convert to int
     int arraySize = atoi(argv[1]);
     int workers = atoi(argv[2]);
 
+	// create service instance
 	IPCService *ipcService = new IPCService(arraySize, workers);
+
+	// calculate sum with child proccesses
 	int parallelSum = ipcService->calculate_sum();
 
-	std::cout << "Synchron sum is: " << ipcService->sum_synchron() << std::endl;
+	// calculate sum without threads or proccesses
+	int sum = ipcService->sum_synchron();
+
+	// output
+	std::cout << "Synchron sum is: " << sum << std::endl;
 	std::cout << "Parallel sum is: " << parallelSum << std::endl;
 	
-	return 1;
-    int pipefd[2];
-
-    int result = pipe(pipefd);
-
-    if (result != 0)
-        exit(0);
-
-    // the string to send
-	const char* str = "Hello World";
-
-	// size of string to write
-	int size = strlen(str);
-
-	// create a tez
-	int child = fork();
-
-	// exit on failure
-	if(child == -1){
-		exit(errno);
-	}
-
-	if(child == 0){
-
-		char* buffer = new char[size + 1];
-		std::cout << "Entered child process ..." << std::endl;	
-	
-		close(pipefd[1]);
-		int readBytes = read(pipefd[0], buffer, size + 1); 
-
-		std::cout << "Got text from parent: " << buffer << std::endl;
-		
-		delete [] buffer;
-	}
-	else {
-		sleep(5);
-		close(pipefd[0]);
-		int written = write(pipefd[1], str, size + 1);		
-		wait(NULL);
-	}
-
     return 0;
-
 }

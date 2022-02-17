@@ -4,50 +4,74 @@
 #include <unistd.h> 
 #include <string.h>
 #include <sys/wait.h> 
- #include <math.h> 
+#include <math.h> 
 
+/*
+ * Create array of given size and fill with random data
+ */
 IPCService::IPCService(int arraySize, int workers)
 {
+    // set data
     this->workers = workers;
     this->arraySize = arraySize;
+
+    // create array of size
     this->myArray = new int[this->arraySize];
     
+    // fill random data
     for (int i=0;i<this->arraySize;i++){
         myArray[i] = rand() % 1000;
     }
 }
 
+/*
+ * Calculate sum of array
+ */
 int IPCService::sum_synchron()
 {
     int sum=0;
+
+    // iterate throught each data
     for(int i=0;i<this->arraySize;i++) {
+
+        // add to sum
         sum += this->myArray[i];
     }
 
+    // return total
     return sum;
 }
 
+/*
+ * Calculate sum with child proccesses
+ */
 int IPCService::calculate_sum()
 {
+    // find how mamny indexes of array each proccess can carry
     int eachWorkerStrength = ceil((float) this->arraySize/this->workers);
+
+    // create array to store each workers calculated sum
     int *subTotalOfWorkes = new int[this->workers];
+
+    // true when array last element reached
     bool isEnd = false;
+
     int calculatedTotal = 0;
 
-    //std::cout<<eachWorkerStrength;
-    //return;
+    // create workers
     for (int i=0; i < this->workers; i++) {
 
-        //std::cout<< "i: " << i << std::endl;
         // child only read from parent
         int parentToChild[2];
 
-        // child only write from parent
+        // child only write to parent
         int childToParent[2];
     
+        // create pipes for comunicating between parent and child proccesses
         int result = pipe(parentToChild);
         int result2 = pipe(childToParent);
 
+        // create child
         int child = fork();
 
         // unable to create child
@@ -62,30 +86,28 @@ int IPCService::calculate_sum()
             close(parentToChild[1]);
             close(childToParent[0]);
         
-            
+            // buffer to store bytes read
             int *data = new int[2];
-            //std::cout<<"reading bytes" << std::endl;
+
+            // read bytes from pipe
             int readBytes = read(parentToChild[0], data, sizeof(data));
 
-            //std::cout << getpid() <<"- I will take from: " << data[0] << " to: " << data[1] << std::endl;
-
+            // create int in heap for passing to parent
             int* childCountedSum = new int();
+
+            // calculate given part of the array
             for (int j=data[0]; j<data[1]; j++) {
                 *childCountedSum += this->myArray[j];
-                //std::cout << "J is: " << j << "  ";
-                //std::cout << this->myArray[j] << std::endl;
             }
-
-            //std::cout<< "One of workers calculated sum: " << *childCountedSum << std::endl;
-
-            
+          
+            // send sum to parent
             int written = write(childToParent[1], childCountedSum, sizeof(childCountedSum));
 
+            // make sure data has been sent
             if (written == -1) {
                 std::cout<< strerror(errno);
                 exit(0);
             }
-            //sleep(2);
 
             // exit to prevent chil to enter out loop and start another childs
             exit(0);
@@ -96,42 +118,44 @@ int IPCService::calculate_sum()
             close(parentToChild[0]);
             close(childToParent[1]);
 
+            // get each worker starting index
             int workerStartIndex = i*eachWorkerStrength;
+
+            // get each worker ending index
             int workerEndIndex = workerStartIndex + eachWorkerStrength;
 
+            // make sure end index is the array size
             if (workerEndIndex >= this->arraySize) {
+            
+                // set end index to last index
                 workerEndIndex = this->arraySize;
+
+                // end of the array reached
                 isEnd = true;
             }
 
+            // create data store in heap to send to child
             int* data = new int[2];
             data[0] = workerStartIndex;
             data[1] = workerEndIndex;
-            
-            //std::cout <<"child will take: " << data[0] << " to: " << data[1] << std::endl;
 
-            
+            // send data to child           
             int written = write(parentToChild[1], data, sizeof(data));
 
+            // make sure data sent
             if (written == -1) {
                 std::cout<< strerror(errno);
                 exit(0);
             }
 
+            // create buffer to write the bytes read
             int* childCountedSum = new int;
+
+            // read from pipe
             int readBytes = read(childToParent[0], childCountedSum, sizeof(childCountedSum));
 
-            //std::cout << "Parent got child counted sum: " << *childCountedSum << std::endl;
-
+            // add worker counted sum to array
             subTotalOfWorkes[i] = *childCountedSum;
-
-            //wait(NULL);
-
-            /*const char* buffer = "asd";
-            int size = strlen(buffer);
-            
-            */
-            //int written = write(parentToChild[1], buffer, size+1);
 
             // no more workers needed
             if (isEnd)
@@ -140,12 +164,14 @@ int IPCService::calculate_sum()
 
     }
 
+    // wait for all workers to finish
     while(wait(NULL) > 0);
 
+    // calculate total sum of workers counted
     for (int i=0;i< this->workers; i++) {
-        //std::cout << subTotalOfWorkes[i] << std::endl;
         calculatedTotal += subTotalOfWorkes[i];
     }
 
+    // return sum
     return calculatedTotal;
 }

@@ -1,11 +1,14 @@
 #include <iostream>
 #include "ShellService.h"
 #include <string>
-using namespace std;
+
 int main() 
 {
-
+    // init out shell service
     ShellService shell;
 
+    // start out shell
     shell.start_shell();
+
+    return 0;
 }
