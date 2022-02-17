@@ -140,14 +140,18 @@ void* ParallelMatrix::thread_start(void* arg)
     ParallelMatrix* pThis = (ParallelMatrix*) args->myClass;
 
     // iterate through array and count sum
+    int sum = 0;
     for (int startIndex=args->i; startIndex < (args->strength+args->i); startIndex++) {
         for(int j=0;j<pThis->weight;j++) {
-
+            
             // add to sum
-            pThis->increment_parallel_sum(pThis->matrix[startIndex][j]);
+            sum += pThis->matrix[startIndex][j];
+            
         }
     }
 
+    pThis->increment_parallel_sum(sum);
+    
     return NULL;
 }
 
