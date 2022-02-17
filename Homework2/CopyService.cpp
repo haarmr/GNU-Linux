@@ -114,11 +114,6 @@ void CopyService::copy_file(int sourceFileDescriptor, int destFileDescriptor)
             offset = data;
         }
 
-        // reached the end of file, offset and data are both 0 when file starts with hole
-        if(data == 0 && offset != 0){
-            break;
-        }
-
         // something went wrong
         if(data < 0){
             std::cerr << "Something went wrong. " << strerror(errno) << std::endl;
