@@ -58,7 +58,7 @@ int IPCService::calculate_sum()
 
     int calculatedTotal = 0;
 
-    // child to parent pipes array
+    // child to parent pipes array of arrays
     int **childToParentPipes = new int*[this->workers];
 
     // create workers
@@ -74,6 +74,7 @@ int IPCService::calculate_sum()
         pipe(parentToChild);
         pipe(childToParent);
 
+        // add our pipes array to array
         childToParentPipes[i] = childToParent;
         
         // create child
@@ -165,8 +166,10 @@ int IPCService::calculate_sum()
     // read from each worker pipe   
     for (int i=0; i < this->workers; i++) {
 
+        // pipes store
         int *childToParent = new int[2];
 
+        // get pipes from array
         childToParent = childToParentPipes[i];
 
         // create buffer to write the bytes read
