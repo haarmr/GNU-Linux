@@ -38,11 +38,6 @@ void CopyService::print_file_size(int fileDescriptor)
             offset = data;
         }
 
-        // reached the end of file
-        if(data == 0 && offset !=0){
-            break;
-        }
-
         // something went wrong
         if(data < 0){
             std::cout << "Something went wrong. " << strerror(errno) << std::endl;
